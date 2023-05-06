@@ -1,0 +1,15 @@
+name: MLDL2
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - ipykernel
+  - easydict
+  - tensorboardx
+  - ca-certificates
+  - openssl
+  - pytorch
+  - torchvision
+  - pytorch-cuda=11.8
+prefix: /home/edoardo/miniconda3/envs/MLDL2
