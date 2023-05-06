@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 import transforms as own_transforms
 from resortit import resortit
 from config import cfg
-
+ 
 def loading_data():
     mean_std = cfg.DATA.MEAN_STD
     train_simul_transform = own_transforms.Compose([
