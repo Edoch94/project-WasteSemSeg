@@ -106,8 +106,12 @@ class SaveBestModel:
         self.best_valid_loss = best_valid_loss
         
     def __call__(
-        self, current_valid_loss, 
-        epoch, model, optimizer, criterion
+        self, 
+        current_valid_loss, 
+        epoch, 
+        model, 
+        optimizer, 
+        criterion
     ):
         if current_valid_loss < self.best_valid_loss:
             self.best_valid_loss = current_valid_loss

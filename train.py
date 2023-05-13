@@ -75,11 +75,11 @@ def main():
         print('training time of one epoch: {:.2f}s'.format(_t['train time'].diff))
         
         _t['val time'].tic()
-        validate(val_loader, net, criterion, optimizer, epoch, restore_transform)
+        val_iou, val_loss = validate(val_loader, net, criterion, optimizer, epoch, restore_transform)
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
-
-        # save_best_model()
+        print('VALIDATION LOSS')
+        save_best_model(val_loss, epoch, net, optimizer, criterion)
 
 
 def train(train_loader, net, criterion, optimizer, epoch):
@@ -103,27 +103,27 @@ def validate(val_loader, net, criterion, optimizer, epoch, restore):
     label_batches = []
     iou_ = 0.0
     loss_ = 0.0
-    for vi, data in enumerate(val_loader, 0):
-        inputs, labels = data
-        inputs = Variable(inputs, volatile=True).cuda()
-        labels = Variable(labels, volatile=True).cuda()
-        outputs = net(inputs)
-        #for binary classification
-        outputs[outputs>0.5] = 1
-        outputs[outputs<=0.5] = 0
-        #for multi-classification ???
+    with torch.no_grad():
+        for vi, data in enumerate(val_loader, 0):
+            inputs, labels = data
+            inputs = inputs.cuda()
+            labels = labels.cuda()
+            outputs = net(inputs)
+            #for binary classification
+            outputs[outputs>0.5] = 1
+            outputs[outputs<=0.5] = 0
+            #for multi-classification ???
 
-        iou_ += calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
-        loss_ += criterion(outputs, labels.float())
-    mean_iu = iou_/len(val_loader)   
-    # mean_loss = loss_/len(val_loader)
+            iou_ += calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
+            loss_ += criterion(outputs, labels.float())
+        mean_iu = iou_/len(val_loader)   
+        mean_loss = loss_/len(val_loader)
 
     # print('[mean iu %.4f]' % (mean_iu)) 
     net.train()
     criterion.cuda()
 
-    # return mean_iu, mean_loss
-    return mean_iu
+    return mean_iu, mean_loss
 
 
 if __name__ == '__main__':
