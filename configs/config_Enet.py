@@ -37,11 +37,12 @@ __C['TRAIN']['STAGE'] = 'encoder' # encoder or all
 __C['TRAIN']['PRETRAINED_ENCODER'] = '' # Path of the pretrained encoder
 
 # input setting
-__C['TRAIN']['BATCH_SIZE'] = 16 #imgs
+__C['TRAIN']['BATCH_SIZE'] = 8 #imgs
 __C['TRAIN']['IMG_SIZE'] = (224,448)
 
 __C['TRAIN']['GPU_ID'] = [0]
 
+__C['TRAIN']['NUM_WORKERS'] = 4
 
 __C['TRAIN']['RESUME'] = ''#model path
 
@@ -76,8 +77,10 @@ __C['TRAIN']['EXP_PATH'] = os.path.join('./exp', __C['MODEL']['NAME'])
 __C['TRAIN']['CKPT_MODEL'] = os.path.join(__C['TRAIN']['CKPT_NETFOLDER_PATH'], __C['TRAIN']['EXP_NAME'])
 
 #------------------------------VAL------------------------
-__C['VAL']['BATCH_SIZE'] = 16 # imgs
+__C['VAL']['BATCH_SIZE'] = 8 # imgs
 __C['VAL']['SAMPLE_RATE'] = 1
+
+__C['VAL']['NUM_WORKERS'] = 4
 
 #------------------------------TEST------------------------
 __C['TEST']['GPU_ID'] = 0

@@ -5,6 +5,7 @@ from PIL import Image
 import os
 import shutil
 import configs.config_Enet 
+import time
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
@@ -93,6 +94,30 @@ def scores(label_trues, label_preds, n_class):
             'Mean IoU : \t': mean_iu,}, cls_iu
 
 
+class Timer(object):
+    """A simple timer."""
+    def __init__(self):
+        self.total_time = 0.
+        self.calls = 0
+        self.start_time = 0.
+        self.diff = 0.
+        self.average_time = 0.
+
+    def tic(self):
+        # using time.time instead of time.clock because time time.clock
+        # does not normalize for multithreading
+        self.start_time = time.time()
+
+    def toc(self, average=True):
+        self.diff = time.time() - self.start_time
+        self.total_time += self.diff
+        self.calls += 1
+        self.average_time = self.total_time / self.calls
+        if average:
+            return self.average_time
+        else:
+            return self.diff
+
 
 class SaveBestModel:
     """
@@ -115,8 +140,8 @@ class SaveBestModel:
     ):
         if current_valid_loss < self.best_valid_loss:
             self.best_valid_loss = current_valid_loss
-            print(f"\nBest validation loss: {self.best_valid_loss}")
-            print(f"\nSaving best model for epoch: {epoch+1}\n")
+            # print(f"\nBest validation loss: {self.best_valid_loss}")
+            # print(f"\nSaving best model for epoch: {epoch+1}\n")
             save({
                 'epoch': epoch+1,
                 'model_state_dict': model.state_dict(),
@@ -131,7 +156,7 @@ def save_model(epochs, model, optimizer, criterion):
     """
     Function to save the trained model to disk.
     """
-    print(f"Saving final model...")
+    # print(f"Saving final model...")
 
     # if epochs%configs.config_Enet.cfg['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ']:
 
