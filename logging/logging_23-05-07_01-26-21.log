@@ -1,0 +1,3 @@
+2023-05-07 01:26:21,024	DEBUG	initialized logging
+2023-05-07 01:26:21,026	DEBUG	initialized tensorboard
+2023-05-07 01:26:21,038	DEBUG	initialized dataloader

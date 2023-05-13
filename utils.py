@@ -51,7 +51,7 @@ def rm_file(path_file):
 def colorize_mask(mask):
     # mask: numpy array of the mask
     new_mask = Image.fromarray(mask.astype(np.uint8)).convert('P')
-    new_mask.putpalette(cfg.VIS.PALETTE_LABEL_COLORS)
+    new_mask.putpalette(cfg['VIS']['PALETTE_LABEL_COLORS'])
 
     return new_mask
 

@@ -1,9 +1,11 @@
+from typing import Any
 from config import cfg
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 import pdb
+import lightning.pytorch as pl
 
 
 class InitialBlock(nn.Module):
@@ -249,3 +251,34 @@ class ENet(nn.Module):
         if not self.state:
             output = self.decoder(output, pooling_stack)
         return output
+
+# TODO
+class ENet2(pl.LightningModule):
+    def __init__(self, encoder, decoder, num_classes, only_encode=False):
+        super().__init__()
+        self.state = only_encode
+        self.encoder = encoder(**{'num_classes': num_classes,'only_encode':only_encode})
+        self.decoder = decoder(**{'num_classes': num_classes})
+        encoder.cuda()
+        decoder.cuda()
+    
+    def forward(self, input):
+        output, pooling_stack = self.encoder(input)
+        if not self.state:
+            output = self.decoder(output, pooling_stack)
+        return output
+    
+    def configure_optimizers(self) -> Any:
+        return super().configure_optimizers()
+
+    def training_step(train_loader, net, criterion, optimizer, epoch):
+        for i, data in enumerate(train_loader, 0):
+            inputs, labels = data
+            inputs = Variable(inputs).cuda()
+            labels = Variable(labels).cuda()
+    
+            optimizer.zero_grad()
+            outputs = net(inputs)
+            loss = criterion(outputs, labels.unsqueeze(1).float())
+            loss.backward()
+            optimizer.step()
