@@ -14,11 +14,16 @@ __C.TRAIN = edict()
 __C.VAL = edict()
 __C.TEST = edict()
 __C.VIS = edict()
+__C.OUT = edict()
+__C.MODEL = edict()
+
+#------------------------------MODEL-----------------------
+__C.MODEL.NAME = 'Enet'
 
 #------------------------------DATA------------------------
 
 __C.DATA.DATASET = 'city'  # dataset # city
-__C.DATA.DATA_PATH = '/content/drive/MyDrive/Dataset'
+__C.DATA.DATA_PATH = 'dataset'
 __C.DATA.NUM_CLASSES = 1
 __C.DATA.IGNORE_LABEL = 255
 __C.DATA.IGNORE_LABEL_TO_TRAIN_ID = 19 # 255->19
@@ -57,7 +62,8 @@ __C.TRAIN.PRINT_FREQ = 10
 now = time.strftime("%y-%m-%d_%H-%M-%S", time.localtime())
 
 __C.TRAIN.EXP_NAME =  now \
-                    + '_' + __C.TRAIN.STAGE + '_ENet'  \
+                    + '_' + __C.TRAIN.STAGE \
+                    + '_' + __C.MODEL.NAME  \
                     + '_' + __C.DATA.DATASET \
                     + '_' + str(__C.TRAIN.IMG_SIZE) \
                     + '_lr_' + str(__C.TRAIN.LR)
@@ -84,6 +90,13 @@ __C.VIS.PALETTE_LABEL_COLORS = [128, 64, 128, 244, 35, 232, 70, 70, 70, 102, 102
            220, 220, 0, 107, 142, 35, 152, 251, 152, 70, 130, 180, 220, 20, 60, 255, 0, 0, 0, 0, 142, 0, 0, 70,
            0, 60, 100, 0, 80, 100, 0, 0, 230, 119, 11, 32]
 
+#-------------------------------OUT------------------------
+__C.OUT.BEST_MODEL_STATE = now \
+                    + '_' + __C.TRAIN.STAGE \
+                    + '_' + __C.MODEL.NAME \
+                    + '_' + __C.DATA.DATASET \
+                    + '_' + str(__C.TRAIN.IMG_SIZE) \
+                    + '_lr_' + str(__C.TRAIN.LR)
 
 
 #------------------------------MISC------------------------

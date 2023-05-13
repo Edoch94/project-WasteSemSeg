@@ -25,6 +25,12 @@ writer = SummaryWriter(cfg.TRAIN.EXP_PATH+ '/' + exp_name)
 pil_to_tensor = standard_transforms.ToTensor()
 train_loader, val_loader, restore_transform = loading_data()
 
+
+
+save_best_model = SaveBestModel()
+
+
+
 def main():
 
     cfg_file = open('./config.py',"r")  
@@ -60,15 +66,20 @@ def main():
     scheduler = StepLR(optimizer, step_size=cfg.TRAIN.NUM_EPOCH_LR_DECAY, gamma=cfg.TRAIN.LR_DECAY)
     _t = {'train time' : Timer(),'val time' : Timer()} 
     validate(val_loader, net, criterion, optimizer, -1, restore_transform)
+
     for epoch in range(cfg.TRAIN.MAX_EPOCH):
+
         _t['train time'].tic()
         train(train_loader, net, criterion, optimizer, epoch)
         _t['train time'].toc(average=False)
         print('training time of one epoch: {:.2f}s'.format(_t['train time'].diff))
+        
         _t['val time'].tic()
         validate(val_loader, net, criterion, optimizer, epoch, restore_transform)
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
+
+        # save_best_model()
 
 
 def train(train_loader, net, criterion, optimizer, epoch):
@@ -91,6 +102,7 @@ def validate(val_loader, net, criterion, optimizer, epoch, restore):
     output_batches = []
     label_batches = []
     iou_ = 0.0
+    loss_ = 0.0
     for vi, data in enumerate(val_loader, 0):
         inputs, labels = data
         inputs = Variable(inputs, volatile=True).cuda()
@@ -102,11 +114,16 @@ def validate(val_loader, net, criterion, optimizer, epoch, restore):
         #for multi-classification ???
 
         iou_ += calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
+        loss_ += criterion(outputs, labels.float())
     mean_iu = iou_/len(val_loader)   
+    # mean_loss = loss_/len(val_loader)
 
-    print('[mean iu %.4f]' % (mean_iu)) 
+    # print('[mean iu %.4f]' % (mean_iu)) 
     net.train()
     criterion.cuda()
+
+    # return mean_iu, mean_loss
+    return mean_iu
 
 
 if __name__ == '__main__':
