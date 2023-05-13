@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import os
 import shutil
-from config import cfg
+import configs.config_Enet 
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
@@ -53,7 +53,7 @@ def rm_file(path_file):
 def colorize_mask(mask):
     # mask: numpy array of the mask
     new_mask = Image.fromarray(mask.astype(np.uint8)).convert('P')
-    new_mask.putpalette(cfg.VIS.PALETTE_LABEL_COLORS)
+    new_mask.putpalette(configs.config_Enet.cfg['VIS']['PALETTE_LABEL_COLORS'])
 
     return new_mask
 
@@ -122,7 +122,9 @@ class SaveBestModel:
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': criterion,
-                }, 'outputs/best_model.pth')
+                }, 
+                os.path.join(configs.config_Enet.cfg['TRAIN']['CKPT_MODEL'],'best_model.pth')
+            )
             
 
 def save_model(epochs, model, optimizer, criterion):
@@ -135,4 +137,6 @@ def save_model(epochs, model, optimizer, criterion):
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'loss': criterion,
-        }, 'outputs/final_model.pth')
+        }, 
+        os.path.join(configs.config_Enet.cfg['TRAIN']['CKPT_MODEL'],'final_model.pth')
+    )

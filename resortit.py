@@ -3,10 +3,10 @@ import os
 from PIL import Image
 from torch.utils import data
 import numpy as np
-from config import cfg
+from configs.config_Enet import cfg
 
-processed_train_path = os.path.join(cfg.DATA.DATA_PATH, 'train')
-processed_val_path = os.path.join(cfg.DATA.DATA_PATH, 'val')
+processed_train_path = os.path.join(cfg['DATA']['DATA_PATH'], 'train')
+processed_val_path = os.path.join(cfg['DATA']['DATA_PATH'], 'val')
 
 
 def default_loader(path):
@@ -17,14 +17,14 @@ def make_dataset(mode):
     images = []
     if mode == 'train':
         processed_train_img_path = processed_train_path
-        processed_train_mask_path = cfg.DATA.DATA_PATH
+        processed_train_mask_path = cfg['DATA']['DATA_PATH']
         for img_name in os.listdir(processed_train_img_path):
             item = (os.path.join(processed_train_img_path, img_name),
                     os.path.join(processed_train_mask_path + '/labels/train/', img_name))
             images.append(item)
     elif mode == 'val':
         processed_val_img_path = processed_val_path
-        processed_val_mask_path = cfg.DATA.DATA_PATH
+        processed_val_mask_path = cfg['DATA']['DATA_PATH']
         for img_name in os.listdir(processed_val_img_path):
             item = (os.path.join(processed_val_img_path, img_name),
                     os.path.join(processed_val_mask_path + '/labels/val/', img_name))

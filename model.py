@@ -1,4 +1,4 @@
-from config import cfg
+import configs.config_Enet
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -205,7 +205,7 @@ class Encoder(nn.Module):
                 output = layer(output)
 
         if self.state:
-            output = F.upsample(output, cfg.TRAIN.IMG_SIZE, None, 'bilinear')
+            output = F.upsample(output, configs.config_Enet.cfg['TRAIN']['IMG_SIZE'], None, 'bilinear')
 
         return output, pooling_stack
 
@@ -241,8 +241,8 @@ class ENet(nn.Module):
     def __init__(self, only_encode=False):
         super(ENet, self).__init__()
         self.state = only_encode
-        self.encoder = Encoder(cfg.DATA.NUM_CLASSES,only_encode=only_encode)
-        self.decoder = Decoder(cfg.DATA.NUM_CLASSES)
+        self.encoder = Encoder(configs.config_Enet.cfg['DATA']['NUM_CLASSES'],only_encode=only_encode)
+        self.decoder = Decoder(configs.config_Enet.cfg['DATA']['NUM_CLASSES'])
 
     def forward(self, input):
         output, pooling_stack = self.encoder(input)
