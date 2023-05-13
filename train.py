@@ -67,17 +67,17 @@ def main():
     optimizer = optim.Adam(net.parameters(), lr=configs.config_Enet.cfg['TRAIN']['LR'], weight_decay=configs.config_Enet.cfg['TRAIN']['WEIGHT_DECAY'])
     scheduler = StepLR(optimizer, step_size=configs.config_Enet.cfg['TRAIN']['NUM_EPOCH_LR_DECAY'], gamma=configs.config_Enet.cfg['TRAIN']['LR_DECAY'])
     _t = {'train time' : Timer(),'val time' : Timer()} 
-    validate(val_loader, net, criterion, optimizer, -1, restore_transform)
+    evaluate(val_loader, net, criterion, optimizer, -1, restore_transform)
 
     for epoch in range(configs.config_Enet.cfg['TRAIN']['MAX_EPOCH']):
 
         _t['train time'].tic()
-        train(train_loader, net, criterion, optimizer, epoch)
+        fit(train_loader, net, criterion, optimizer, epoch)
         _t['train time'].toc(average=False)
         print('training time of one epoch: {:.2f}s'.format(_t['train time'].diff))
         
         _t['val time'].tic()
-        val_iou, val_loss = validate(val_loader, net, criterion, optimizer, epoch, restore_transform)
+        val_iou, val_loss = evaluate(val_loader, net, criterion, optimizer, epoch, restore_transform)
         _t['val time'].toc(average=False)
         print('val time of one epoch: {:.2f}s'.format(_t['val time'].diff))
         print('VALIDATION LOSS')
@@ -86,11 +86,14 @@ def main():
 
 
 
-def train(train_loader, net, criterion, optimizer, epoch):
+def fit(train_loader, net, criterion, optimizer, epoch):
+    net.train()
+    criterion.cuda()
+
     for i, data in enumerate(train_loader, 0):
         inputs, labels = data
-        inputs = Variable(inputs).cuda()
-        labels = Variable(labels).cuda()
+        inputs = inputs.cuda()
+        labels = labels.cuda()
    
         optimizer.zero_grad()
         outputs = net(inputs)
@@ -99,34 +102,31 @@ def train(train_loader, net, criterion, optimizer, epoch):
         optimizer.step()
 
 
-def validate(val_loader, net, criterion, optimizer, epoch, restore):
+@torch.no_grad()
+def evaluate(val_loader, net, criterion, optimizer, epoch, restore):
     net.eval()
     criterion.cpu()
-    input_batches = []
-    output_batches = []
-    label_batches = []
+    # input_batches = []
+    # output_batches = []
+    # label_batches = []
     iou_ = 0.0
     loss_ = 0.0
-    with torch.no_grad():
-        for vi, data in enumerate(val_loader, 0):
-            inputs, labels = data
-            inputs = inputs.cuda()
-            labels = labels.cuda()
-            outputs = net(inputs)
-            
-            loss_ += criterion(outputs, labels.float())
-            
-            #for binary classification
-            outputs[outputs>0.5] = 1
-            outputs[outputs<=0.5] = 0
-            #for multi-classification ???
 
-            iou_ += utils.calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
-        mean_iu = iou_/len(val_loader)   
-        mean_loss = loss_/len(val_loader)
+    for vi, data in enumerate(val_loader, 0):
+        inputs, labels = data
+        inputs = inputs.cuda()
+        labels = labels.cuda()
+        outputs = net(inputs)
+        
+        loss_ = criterion(outputs, labels.unsqueeze(1).float())
+        #for binary classification
+        outputs[outputs>0.5] = 1
+        outputs[outputs<=0.5] = 0
+        #for multi-classification ???
 
-    net.train()
-    criterion.cuda()
+        iou_ += utils.calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
+    mean_iu = iou_/len(val_loader)   
+    mean_loss = loss_/len(val_loader)
 
     return mean_iu, mean_loss
 
