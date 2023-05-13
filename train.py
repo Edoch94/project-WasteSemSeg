@@ -113,13 +113,15 @@ def validate(val_loader, net, criterion, optimizer, epoch, restore):
             inputs = inputs.cuda()
             labels = labels.cuda()
             outputs = net(inputs)
+            
+            loss_ += criterion(outputs, labels.float())
+            
             #for binary classification
             outputs[outputs>0.5] = 1
             outputs[outputs<=0.5] = 0
             #for multi-classification ???
 
             iou_ += utils.calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
-            loss_ += criterion(outputs, labels.float())
         mean_iu = iou_/len(val_loader)   
         mean_loss = loss_/len(val_loader)
 

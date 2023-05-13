@@ -132,6 +132,10 @@ def save_model(epochs, model, optimizer, criterion):
     Function to save the trained model to disk.
     """
     print(f"Saving final model...")
+
+    # if epochs%configs.config_Enet.cfg['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ']:
+
+
     save({
         'epoch': epochs,
         'model_state_dict': model.state_dict(),

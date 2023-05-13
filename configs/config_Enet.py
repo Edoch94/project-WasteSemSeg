@@ -56,6 +56,7 @@ __C['TRAIN']['MAX_EPOCH'] = 5
 
 # output 
 __C['TRAIN']['PRINT_FREQ'] = 10
+__C['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ'] = 1
 
 now = time.strftime("%y-%m-%d_%H-%M-%S", time.localtime())
 
