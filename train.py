@@ -91,17 +91,18 @@ def validate(val_loader, net, criterion, optimizer, epoch, restore):
     output_batches = []
     label_batches = []
     iou_ = 0.0
-    for vi, data in enumerate(val_loader, 0):
-        inputs, labels = data
-        inputs = Variable(inputs, volatile=True).cuda()
-        labels = Variable(labels, volatile=True).cuda()
-        outputs = net(inputs)
-        #for binary classification
-        outputs[outputs>0.5] = 1
-        outputs[outputs<=0.5] = 0
-        #for multi-classification ???
+    with torch.no_grad():
+        for vi, data in enumerate(val_loader, 0):
+            inputs, labels = data
+            inputs = inputs.cuda()
+            labels = labels.cuda()
+            outputs = net(inputs)
+            #for binary classification
+            outputs[outputs>0.5] = 1
+            outputs[outputs<=0.5] = 0
+            #for multi-classification ???
 
-        iou_ += calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
+            iou_ += calculate_mean_iu([outputs.squeeze_(1).data.cpu().numpy()], [labels.data.cpu().numpy()], 2)
     mean_iu = iou_/len(val_loader)   
 
     print('[mean iu %.4f]' % (mean_iu)) 
