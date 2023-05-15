@@ -25,9 +25,13 @@ class InitialBlock(nn.Module):
         self.pool = nn.MaxPool2d(2, stride=2)
 
     def forward(self, input):
-        output = torch.cat([
-            self.prelu(self.batch_norm(self.conv(input))), self.pool(input)
-        ], 1)
+        output = torch.cat(
+            [
+                self.prelu(self.batch_norm(self.conv(input))), 
+                self.pool(input)
+            ], 
+            1
+        )
         return output
 
 
@@ -60,13 +64,13 @@ class BottleNeck(nn.Module):
     '''
 
     def __init__(self,
-                 input_channels=None,
-                 output_channels=None,
+                 input_channels: int,
+                 output_channels: int,
                  regularlizer_prob=0.1,
                  downsampling=False,
                  upsampling=False,
                  dilated=False,
-                 dilation_rate=None,
+                 dilation_rate=0,
                  asymmetric=False,
                  use_relu=False):
         super(BottleNeck, self).__init__()
@@ -79,8 +83,7 @@ class BottleNeck(nn.Module):
         internal = output_channels // 4
         input_stride = 2 if downsampling else 1
         # First projection with 1x1 kernel (2x2 for downsampling)
-        conv1x1_1 = nn.Conv2d(input_channels, internal,
-                              input_stride, input_stride, bias=False)
+        conv1x1_1 = nn.Conv2d(input_channels, internal, input_stride, input_stride, bias=False)
         batch_norm1 = nn.BatchNorm2d(internal, 1e-3)
         prelu1 = self._prelu(internal, use_relu)
         self.block1x1_1 = nn.Sequential(conv1x1_1, batch_norm1, prelu1)
@@ -91,20 +94,17 @@ class BottleNeck(nn.Module):
             conv = nn.Conv2d(internal, internal, 3, stride=1, padding=1)
         elif upsampling:
             # padding is replaced with spatial convolution without bias.
-            spatial_conv = nn.Conv2d(input_channels, output_channels, 1,
-                                     bias=False)
+            spatial_conv = nn.Conv2d(input_channels, output_channels, 1, bias=False)
             batch_norm = nn.BatchNorm2d(output_channels, 1e-3)
             self.conv_before_unpool = nn.Sequential(spatial_conv, batch_norm)
             self.unpool = nn.MaxUnpool2d(2)
-            conv = nn.ConvTranspose2d(internal, internal, 3,
-                                      stride=2, padding=1, output_padding=1)
+            conv = nn.ConvTranspose2d(internal, internal, 3, stride=2, padding=1, output_padding=1)
         elif dilated:
-            conv = nn.Conv2d(internal, internal, 3, padding=dilation_rate,
-                             dilation=dilation_rate)
+            conv = nn.Conv2d(internal, internal, 3, padding=dilation_rate, dilation=dilation_rate)
         elif asymmetric:
-            conv1 = nn.Conv2d(internal, internal, [5, 1], padding=(2, 0),
+            conv1 = nn.Conv2d(internal, internal, (5, 1), padding=(2, 0),
                               bias=False)
-            conv2 = nn.Conv2d(internal, internal, [1, 5], padding=(0, 2))
+            conv2 = nn.Conv2d(internal, internal, (1, 5), padding=(0, 2))
             conv = nn.Sequential(conv1, conv2)
         else:
             conv = nn.Conv2d(internal, internal, 3, padding=1)
@@ -128,6 +128,7 @@ class BottleNeck(nn.Module):
     def forward(self, input, pooling_indices=None):
         main = None
         input_shape = input.size()
+        indices = None # ???
         if self.downsampling:
             main, indices = self.pool(input)
             if (self.output_channels != self.input_channels):
@@ -143,8 +144,7 @@ class BottleNeck(nn.Module):
         else:
             main = input
 
-        other_net = nn.Sequential(self.block1x1_1, self.middle_block,
-                                  self.block1x1_2)
+        other_net = nn.Sequential(self.block1x1_1, self.middle_block, self.block1x1_2)
         other = other_net(input)
         output = F.relu(main + other)
         if (self.downsampling):
@@ -169,8 +169,7 @@ class Encoder(nn.Module):
         self.state = only_encode
         layers = []
         layers.append(InitialBlock())
-        layers.append(BottleNeck(16, 64, regularlizer_prob=0.01,
-                                 downsampling=True))
+        layers.append(BottleNeck(16, 64, regularlizer_prob=0.01, downsampling=True))
         for i in range(4):
             layers.append(BottleNeck(64, 64, regularlizer_prob=0.01))
         
