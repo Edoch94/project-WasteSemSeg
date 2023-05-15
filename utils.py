@@ -152,20 +152,29 @@ class SaveBestModel:
             )
             
 
-def save_model(epochs, model, optimizer, criterion):
+def save_model(epoch, model, optimizer, criterion):
     """
     Function to save the trained model to disk.
     """
     # print(f"Saving final model...")
 
-    # if epochs%configs.config_Enet.cfg['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ']:
+    if not epoch%configs.config_Enet.cfg['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ']:
+        save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': criterion,
+            }, 
+            os.path.join(configs.config_Enet.cfg['TRAIN']['CKPT_MODEL'],f'final_model__{epoch}.pth')
+        )
+
 
 
     save({
-        'epoch': epochs,
+        'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'loss': criterion,
         }, 
-        os.path.join(configs.config_Enet.cfg['TRAIN']['CKPT_MODEL'],'final_model.pth')
+        os.path.join(configs.config_Enet.cfg['TRAIN']['CKPT_MODEL'],f'final_model.pth')
     )

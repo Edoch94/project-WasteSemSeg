@@ -10,7 +10,8 @@ from torch.optim.lr_scheduler import StepLR
 from torchvision.utils import save_image
 import torchvision.transforms as standard_transforms
 import torchvision.utils as vutils
-from tensorboardX import SummaryWriter
+# from tensorboardX import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 
 from model import ENet
 # from configs.config_Enet import cfg
@@ -22,7 +23,6 @@ import pdb
 
 exp_name = configs.config_Enet.cfg['TRAIN']['EXP_NAME']
 log_txt = configs.config_Enet.cfg['TRAIN']['EXP_LOG_PATH'] + '/' + exp_name + '.txt'
-writer = SummaryWriter(configs.config_Enet.cfg['TRAIN']['EXP_PATH']+ '/' + exp_name)
 
 pil_to_tensor = standard_transforms.ToTensor()
 train_loader, val_loader, restore_transform = loading_data()
@@ -34,6 +34,8 @@ save_best_model = utils.SaveBestModel()
 
 
 def main():
+
+    writer = SummaryWriter(configs.config_Enet.cfg['TRAIN']['EXP_PATH']+ '/' + exp_name)
 
     _t = {'train time' : utils.Timer(), 'val time' : utils.Timer()} 
 
@@ -85,10 +87,14 @@ def main():
 
         train_time = _t['train time'].diff
         val_time = _t['val time'].diff
-        print(f'epoch: {epoch+1:04d}, train_loss: {train_loss:.4f}, val_loss: {val_loss:.4f}, train_time {train_time:.4f}, val_time {val_time:.4f}')
+        print(f'epoch: {epoch:04d}, train_loss: {train_loss:.4f}, val_loss: {val_loss:.4f}, train_time {train_time:.4f}, val_time {val_time:.4f}')
 
         save_best_model(val_loss, epoch, net, optimizer, criterion)
         utils.save_model(epoch, net, optimizer, criterion)
+
+        writer.add_scalar('loss', val_loss, epoch)
+
+    writer.close()
 
 
 
@@ -109,15 +115,13 @@ def fit(train_loader, net, criterion, optimizer):
         loss.backward()
         optimizer.step()
 
-        loss_ += criterion(outputs, labels.unsqueeze(1).float())
+        loss_ += criterion(outputs, labels.unsqueeze(1).float()).item()
     
     mean_loss = loss_/len(val_loader)
 
     return mean_loss
 
 
-
-# @torch.no_grad()
 def evaluate(val_loader, net, criterion):
     net.eval()
     criterion.cpu()
@@ -134,7 +138,7 @@ def evaluate(val_loader, net, criterion):
             labels = labels.cuda()
             outputs = net(inputs)
             
-            loss_ += criterion(outputs, labels.unsqueeze(1).float())
+            loss_ += criterion(outputs, labels.unsqueeze(1).float()).item()
             #for binary classification
             outputs[outputs>0.5] = 1
             outputs[outputs<=0.5] = 0
@@ -144,16 +148,10 @@ def evaluate(val_loader, net, criterion):
         mean_iu = iou_/len(val_loader)   
         mean_loss = loss_/len(val_loader)
 
+    net.train()
+    criterion.cuda()
     return mean_iu, mean_loss
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-

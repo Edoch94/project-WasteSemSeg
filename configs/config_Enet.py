@@ -22,7 +22,7 @@ __C['MODEL']['NAME'] = 'Enet'
 #------------------------------DATA------------------------
 
 __C['DATA']['DATASET'] = 'city'  # dataset # city
-__C['DATA']['DATA_PATH'] = 'dataset'
+__C['DATA']['DATA_PATH'] = 'dataset_simple'
 __C['DATA']['NUM_CLASSES'] = 1
 __C['DATA']['IGNORE_LABEL'] = 255
 __C['DATA']['IGNORE_LABEL_TO_TRAIN_ID'] = 19 # 255->19
@@ -37,12 +37,12 @@ __C['TRAIN']['STAGE'] = 'encoder' # encoder or all
 __C['TRAIN']['PRETRAINED_ENCODER'] = '' # Path of the pretrained encoder
 
 # input setting
-__C['TRAIN']['BATCH_SIZE'] = 8 #imgs
+__C['TRAIN']['BATCH_SIZE'] = 16 #imgs
 __C['TRAIN']['IMG_SIZE'] = (224,448)
 
 __C['TRAIN']['GPU_ID'] = [0]
 
-__C['TRAIN']['NUM_WORKERS'] = 4
+__C['TRAIN']['NUM_WORKERS'] = 12
 
 __C['TRAIN']['RESUME'] = ''#model path
 
@@ -57,7 +57,7 @@ __C['TRAIN']['MAX_EPOCH'] = 5
 
 # output 
 __C['TRAIN']['PRINT_FREQ'] = 10
-__C['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ'] = 1
+__C['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ'] = 2
 
 now = time.strftime("%y-%m-%d_%H-%M-%S", time.localtime())
 
@@ -77,10 +77,10 @@ __C['TRAIN']['EXP_PATH'] = os.path.join('./exp', __C['MODEL']['NAME'])
 __C['TRAIN']['CKPT_MODEL'] = os.path.join(__C['TRAIN']['CKPT_NETFOLDER_PATH'], __C['TRAIN']['EXP_NAME'])
 
 #------------------------------VAL------------------------
-__C['VAL']['BATCH_SIZE'] = 8 # imgs
+__C['VAL']['BATCH_SIZE'] = 16 # imgs
 __C['VAL']['SAMPLE_RATE'] = 1
 
-__C['VAL']['NUM_WORKERS'] = 4
+__C['VAL']['NUM_WORKERS'] = 12
 
 #------------------------------TEST------------------------
 __C['TEST']['GPU_ID'] = 0
