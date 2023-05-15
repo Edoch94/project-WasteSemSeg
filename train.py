@@ -48,7 +48,7 @@ def main():
         torch.cuda.set_device(configs.config_Enet.cfg['TRAIN']['GPU_ID'][0])
     cudnn.benchmark = True
 
-    net = []   
+    net = ENet()
     
     if configs.config_Enet.cfg['TRAIN']['STAGE']=='all':
         net = ENet(only_encode=False)
@@ -74,7 +74,7 @@ def main():
     evaluate(val_loader, net, criterion)
 
     for epoch in range(configs.config_Enet.cfg['TRAIN']['MAX_EPOCH']):
-
+        epoch+=1
         _t['train time'].tic()
         train_loss = fit(train_loader, net, criterion, optimizer)
         _t['train time'].toc(average=False)

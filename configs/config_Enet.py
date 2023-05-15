@@ -22,11 +22,11 @@ __C['MODEL']['NAME'] = 'Enet'
 #------------------------------DATA------------------------
 
 __C['DATA']['DATASET'] = 'city'  # dataset # city
-__C['DATA']['DATA_PATH'] = 'dataset_simple'
+__C['DATA']['DATA_PATH'] = 'dataset'
 __C['DATA']['NUM_CLASSES'] = 1
 __C['DATA']['IGNORE_LABEL'] = 255
 __C['DATA']['IGNORE_LABEL_TO_TRAIN_ID'] = 19 # 255->19
-                                          
+
 
 __C['DATA']['MEAN_STD'] = ([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 
@@ -53,11 +53,11 @@ __C['TRAIN']['NUM_EPOCH_LR_DECAY'] = 1 #epoches
 
 __C['TRAIN']['WEIGHT_DECAY'] = 2e-4
 
-__C['TRAIN']['MAX_EPOCH'] = 5
+__C['TRAIN']['MAX_EPOCH'] = 200
 
 # output 
 __C['TRAIN']['PRINT_FREQ'] = 10
-__C['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ'] = 2
+__C['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ'] = 20
 
 now = time.strftime("%y-%m-%d_%H-%M-%S", time.localtime())
 

@@ -143,7 +143,7 @@ class SaveBestModel:
             # print(f"\nBest validation loss: {self.best_valid_loss}")
             # print(f"\nSaving best model for epoch: {epoch+1}\n")
             save({
-                'epoch': epoch+1,
+                'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': criterion,
