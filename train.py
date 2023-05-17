@@ -4,7 +4,7 @@ import random
 import torch
 from torch.backends import cudnn
 from torch import optim
-from torch.autograd import Variable
+# from torch.autograd import Variable
 from torch.nn import NLLLoss2d
 from torch.optim.lr_scheduler import StepLR
 from torchvision.utils import save_image
@@ -148,8 +148,6 @@ def evaluate(val_loader, net, criterion):
         mean_iu = iou_/len(val_loader)   
         mean_loss = loss_/len(val_loader)
 
-    net.train()
-    criterion.cuda()
     return mean_iu, mean_loss
 
 
