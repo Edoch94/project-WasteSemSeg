@@ -1,5 +1,6 @@
 import os
 import random
+import logging
 
 import torch
 from torch.backends import cudnn
@@ -13,7 +14,7 @@ import torchvision.utils as vutils
 # from tensorboardX import SummaryWriter
 from torch.utils.tensorboard.writer import SummaryWriter
 
-from model import ENet
+from models.model_ENet import ENet
 # from configs.config_Enet import cfg
 import configs.config_Enet
 from loading_data import loading_data
