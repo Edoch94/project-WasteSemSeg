@@ -35,7 +35,8 @@ save_best_model = utils.SaveBestModel()
 
 def main():
 
-    writer = SummaryWriter(configs.config_Enet.cfg['TRAIN']['EXP_PATH']+ '/' + exp_name)
+    # writer = SummaryWriter(configs.config_Enet.cfg['TRAIN']['EXP_PATH']+ '/' + exp_name)
+    writer = SummaryWriter(comment=configs.config_Enet.cfg['TRAIN']['EXP_PATH']+ '_' + exp_name)
 
     _t = {'train time' : utils.Timer(), 'val time' : utils.Timer()} 
 
@@ -92,7 +93,7 @@ def main():
         save_best_model(val_loss, epoch, net, optimizer, criterion)
         utils.save_model(epoch, net, optimizer, criterion)
 
-        writer.add_scalar('loss', val_loss, epoch)
+        writer.add_scalars('loss', {'train_loss': train_loss, 'val_loss': val_loss}, epoch)
 
     writer.close()
 
