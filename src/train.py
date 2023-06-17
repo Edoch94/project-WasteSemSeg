@@ -5,7 +5,6 @@ import logging
 import torch
 from torch.backends import cudnn
 from torch import optim
-# from torch.autograd import Variable
 from torch.nn import NLLLoss2d
 from torch.optim.lr_scheduler import StepLR
 from torchvision.utils import save_image
@@ -15,18 +14,16 @@ import torchvision.utils as vutils
 from torch.utils.tensorboard.writer import SummaryWriter
 
 from models.model_ENet import ENet
-# from configs.config_Enet import cfg
 import configs.config_Enet
-from loading_data import loading_data
-import utils
-# from timer import Timer
+from src import loading_data
+from src import utils
 import pdb
 
 exp_name = configs.config_Enet.cfg['TRAIN']['EXP_NAME']
 log_txt = configs.config_Enet.cfg['TRAIN']['EXP_LOG_PATH'] + '/' + exp_name + '.txt'
 
 pil_to_tensor = standard_transforms.ToTensor()
-train_loader, val_loader, restore_transform = loading_data()
+train_loader, val_loader, restore_transform = loading_data.loading_data()
 
 
 
@@ -34,9 +31,8 @@ save_best_model = utils.SaveBestModel()
 
 
 
-def main():
+def run_training():
 
-    # writer = SummaryWriter(configs.config_Enet.cfg['TRAIN']['EXP_PATH']+ '/' + exp_name)
     writer = SummaryWriter(comment=configs.config_Enet.cfg['TRAIN']['EXP_PATH']+ '_' + exp_name)
 
     _t = {'train time' : utils.Timer(), 'val time' : utils.Timer()} 
@@ -152,6 +148,3 @@ def evaluate(val_loader, net, criterion):
 
     return mean_iu, mean_loss
 
-
-if __name__ == '__main__':
-    main()

@@ -1,7 +1,7 @@
 import torchvision.transforms as standard_transforms
 from torch.utils.data import DataLoader
-import transforms as own_transforms
-from resortit import resortit
+import src.transforms as own_transforms
+from src.resortit import resortit
 from configs.config_Enet import cfg
  
 def loading_data():

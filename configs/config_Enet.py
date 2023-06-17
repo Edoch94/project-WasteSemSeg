@@ -22,7 +22,7 @@ __C['MODEL']['NAME'] = 'Enet'
 #------------------------------DATA------------------------
 
 __C['DATA']['DATASET'] = 'city'  # dataset # city
-__C['DATA']['DATA_PATH'] = 'dataset_simple'
+__C['DATA']['DATA_PATH'] = os.path.join('./data','dataset_simple')
 __C['DATA']['NUM_CLASSES'] = 1
 __C['DATA']['IGNORE_LABEL'] = 255
 __C['DATA']['IGNORE_LABEL_TO_TRAIN_ID'] = 19 # 255->19
@@ -49,7 +49,7 @@ __C['TRAIN']['RESUME'] = ''#model path
 # learning rate settings
 __C['TRAIN']['LR'] = 5e-4
 __C['TRAIN']['LR_DECAY'] = 0.995
-__C['TRAIN']['NUM_EPOCH_LR_DECAY'] = 1 #epoches
+__C['TRAIN']['NUM_EPOCH_LR_DECAY'] = 1 #epochs
 
 __C['TRAIN']['WEIGHT_DECAY'] = 2e-4
 
