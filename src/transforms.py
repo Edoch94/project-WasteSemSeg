@@ -1,10 +1,12 @@
 import numbers
 import random
-import numpy as np
-from PIL import Image, ImageOps, ImageFilter
 
+import numpy as np
 import torch
+from PIL import Image, ImageFilter, ImageOps
+
 # ===============================img tranforms============================
+
 
 class Compose(object):
     def __init__(self, transforms):
@@ -31,7 +33,7 @@ class RandomCrop(object):
 
         assert img.size == mask.size
         w, h = img.size
-        th, tw  = self.size
+        th, tw = self.size
         if w == tw and h == th:
             return img, mask
         if w < tw or h < th:
@@ -52,8 +54,8 @@ class CenterCrop(object):
     def __call__(self, img, mask):
         w, h = img.size
         th, tw = self.size
-        x1 = int(round((w - tw) / 2.))
-        y1 = int(round((h - th) / 2.))
+        x1 = int(round((w - tw) / 2.0))
+        y1 = int(round((h - th) / 2.0))
         return img.crop((x1, y1, x1 + tw, y1 + th)), mask.crop((x1, y1, x1 + tw, y1 + th))
 
 
@@ -70,7 +72,9 @@ class FreeScale(object):
         self.interpolation = interpolation
 
     def __call__(self, img, mask):
-        return img.resize((self.size[1], self.size[0]), self.interpolation), mask.resize(self.size, self.interpolation)
+        return img.resize((self.size[1], self.size[0]), self.interpolation), mask.resize(
+            self.size, self.interpolation
+        )
 
 
 class Scale(object):
@@ -80,7 +84,7 @@ class Scale(object):
     def __call__(self, img, mask):
         if img.size != mask.size:
             print(img.size)
-            print(mask.size)           
+            print(mask.size)
         assert img.size == mask.size
         w, h = img.size
         if (w <= h and w == self.size) or (h <= w and h == self.size):
@@ -95,8 +99,8 @@ class Scale(object):
             return img.resize((ow, oh), Image.BILINEAR), mask.resize((ow, oh), Image.NEAREST)
 
 
-
 # ===============================label tranforms============================
+
 
 class DeNormalize(object):
     def __init__(self, mean, std):

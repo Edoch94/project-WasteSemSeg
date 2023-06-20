@@ -1,26 +1,32 @@
-from torch import nn, save
-import torch.nn.functional as F
-import numpy as np
-from PIL import Image
 import os
 import shutil
-import configs.config_Enet 
 import time
+
 import matplotlib.pyplot as plt
-plt.style.use('ggplot')
+import numpy as np
+import torch.nn.functional as F
+from PIL import Image
+from torch import nn, save
+
+import configs.config_Enet
+
+plt.style.use("ggplot")
+
 
 def weights_init_kaiming(m):
     if isinstance(m, nn.Conv2d):
-        #kaiming is first name of author whose last name is 'He' lol
-        nn.init.kaiming_uniform(m.weight) 
+        # kaiming is first name of author whose last name is 'He' lol
+        nn.init.kaiming_uniform(m.weight)
         m.bias.data.zero_()
 
+
 def adjust_learning_rate(lr, decay, optimizer, cur_epoch, n_epochs):
-    """Sets the learning rate to the initially 
-        configured `lr` decayed by `decay` every `n_epochs`"""
+    """Sets the learning rate to the initially
+    configured `lr` decayed by `decay` every `n_epochs`"""
     new_lr = lr * (decay ** (cur_epoch // n_epochs))
     for param_group in optimizer.param_groups:
-        param_group['lr'] = new_lr
+        param_group["lr"] = new_lr
+
 
 def calculate_mean_iu(predictions, gts, num_classes):
     sum_iu = 0
@@ -34,6 +40,7 @@ def calculate_mean_iu(predictions, gts, num_classes):
     mean_iu = sum_iu / num_classes
     return mean_iu
 
+
 class CrossEntropyLoss2d(nn.Module):
     def __init__(self, weight=None, size_average=True):
         super(CrossEntropyLoss2d, self).__init__()
@@ -42,39 +49,43 @@ class CrossEntropyLoss2d(nn.Module):
     def forward(self, inputs, targets):
         return self.nll_loss(F.log_softmax(inputs), targets)
 
+
 def rmrf_mkdir(dir_name):
     if os.path.exists(dir_name):
         shutil.rmtree(dir_name)
     os.mkdir(dir_name)
 
+
 def rm_file(path_file):
     if os.path.exists(path_file):
         os.remove(path_file)
 
+
 def colorize_mask(mask):
     # mask: numpy array of the mask
-    new_mask = Image.fromarray(mask.astype(np.uint8)).convert('P')
-    new_mask.putpalette(configs.config_Enet.cfg['VIS']['PALETTE_LABEL_COLORS'])
+    new_mask = Image.fromarray(mask.astype(np.uint8)).convert("P")
+    new_mask.putpalette(configs.config_Enet.cfg["VIS"]["PALETTE_LABEL_COLORS"])
 
     return new_mask
 
-#============================
+
+# ============================
 
 
 def _fast_hist(label_true, label_pred, n_class):
     mask = (label_true >= 0) & (label_true < n_class)
     hist = np.bincount(
-        n_class * label_true[mask].astype(int) +
-        label_pred[mask], minlength=n_class**2).reshape(n_class, n_class)
+        n_class * label_true[mask].astype(int) + label_pred[mask], minlength=n_class**2
+    ).reshape(n_class, n_class)
     return hist
 
 
 def scores(label_trues, label_preds, n_class):
     """Returns accuracy score evaluation result.
-      - overall accuracy
-      - mean accuracy
-      - mean IU
-      - fwavacc
+    - overall accuracy
+    - mean accuracy
+    - mean IU
+    - fwavacc
     """
     hist = np.zeros((n_class, n_class))
     for lt, lp in zip(label_trues, label_preds):
@@ -88,20 +99,23 @@ def scores(label_trues, label_preds, n_class):
     fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
     cls_iu = dict(zip(range(n_class), iu))
 
-    return {'Overall Acc: \t': acc,
-            'Mean Acc : \t': acc_cls,
-            'FreqW Acc : \t': fwavacc,
-            'Mean IoU : \t': mean_iu,}, cls_iu
+    return {
+        "Overall Acc: \t": acc,
+        "Mean Acc : \t": acc_cls,
+        "FreqW Acc : \t": fwavacc,
+        "Mean IoU : \t": mean_iu,
+    }, cls_iu
 
 
 class Timer(object):
     """A simple timer."""
+
     def __init__(self):
-        self.total_time = 0.
+        self.total_time = 0.0
         self.calls = 0
-        self.start_time = 0.
-        self.diff = 0.
-        self.average_time = 0.
+        self.start_time = 0.0
+        self.diff = 0.0
+        self.average_time = 0.0
 
     def tic(self):
         # using time.time instead of time.clock because time time.clock
@@ -121,36 +135,29 @@ class Timer(object):
 
 class SaveBestModel:
     """
-    Class to save the best model while training. If the current epoch's 
+    Class to save the best model while training. If the current epoch's
     validation loss is less than the previous least loss, then save the
     model state.
     """
-    def __init__(
-        self, best_valid_loss=float('inf')
-    ):
+
+    def __init__(self, best_valid_loss=float("inf")):
         self.best_valid_loss = best_valid_loss
-        
-    def __call__(
-        self, 
-        current_valid_loss, 
-        epoch, 
-        model, 
-        optimizer, 
-        criterion
-    ):
+
+    def __call__(self, current_valid_loss, epoch, model, optimizer, criterion):
         if current_valid_loss < self.best_valid_loss:
             self.best_valid_loss = current_valid_loss
             # print(f"\nBest validation loss: {self.best_valid_loss}")
             # print(f"\nSaving best model for epoch: {epoch+1}\n")
-            save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': criterion,
-                }, 
-                os.path.join(configs.config_Enet.cfg['TRAIN']['CKPT_MODEL'],'best_model.pth')
+            save(
+                {
+                    "epoch": epoch,
+                    "model_state_dict": model.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "loss": criterion,
+                },
+                os.path.join(configs.config_Enet.cfg["TRAIN"]["CKPT_MODEL"], "best_model.pth"),
             )
-            
+
 
 def save_model(epoch, model, optimizer, criterion):
     """
@@ -158,23 +165,25 @@ def save_model(epoch, model, optimizer, criterion):
     """
     # print(f"Saving final model...")
 
-    if not epoch%configs.config_Enet.cfg['TRAIN']['FINAL_MODEL_SAVE_EPOCH_FREQ']:
-        save({
-            'epoch': epoch,
-            'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'loss': criterion,
-            }, 
-            os.path.join(configs.config_Enet.cfg['TRAIN']['CKPT_MODEL'],f'final_model__{epoch}.pth')
+    if not epoch % configs.config_Enet.cfg["TRAIN"]["FINAL_MODEL_SAVE_EPOCH_FREQ"]:
+        save(
+            {
+                "epoch": epoch,
+                "model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "loss": criterion,
+            },
+            os.path.join(
+                configs.config_Enet.cfg["TRAIN"]["CKPT_MODEL"], f"final_model__{epoch}.pth"
+            ),
         )
 
-
-
-    save({
-        'epoch': epoch,
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-        'loss': criterion,
-        }, 
-        os.path.join(configs.config_Enet.cfg['TRAIN']['CKPT_MODEL'],f'final_model.pth')
+    save(
+        {
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "loss": criterion,
+        },
+        os.path.join(configs.config_Enet.cfg["TRAIN"]["CKPT_MODEL"], f"final_model.pth"),
     )
