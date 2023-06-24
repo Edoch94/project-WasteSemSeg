@@ -21,7 +21,7 @@ class Compose(object):
 class RandomCrop(object):
     def __init__(self, size, padding=0):
         if isinstance(size, numbers.Number):
-            self.size = (int(size), int(size))
+            self.size = (int(size), int(size)) # type: ignore
         else:
             self.size = size
         self.padding = padding
@@ -47,7 +47,7 @@ class RandomCrop(object):
 class CenterCrop(object):
     def __init__(self, size):
         if isinstance(size, numbers.Number):
-            self.size = (int(size), int(size))
+            self.size = (int(size), int(size)) # type: ignore
         else:
             self.size = size
 

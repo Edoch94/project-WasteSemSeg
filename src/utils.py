@@ -7,6 +7,11 @@ import numpy as np
 import torch.nn.functional as F
 from PIL import Image
 from torch import nn, save
+import torch
+from src.loading_data import loading_data
+from fvcore.nn import FlopCountAnalysis
+from typing import Type
+from torch.utils.data import DataLoader
 
 import configs.config_Enet
 
@@ -17,7 +22,8 @@ def weights_init_kaiming(m):
     if isinstance(m, nn.Conv2d):
         # kaiming is first name of author whose last name is 'He' lol
         nn.init.kaiming_uniform(m.weight)
-        m.bias.data.zero_()
+        if m.bias is not None:
+            m.bias.data.zero_()
 
 
 def adjust_learning_rate(lr, decay, optimizer, cur_epoch, n_epochs):
@@ -187,3 +193,16 @@ def save_model(epoch, model, optimizer, criterion):
         },
         os.path.join(configs.config_Enet.cfg["TRAIN"]["CKPT_MODEL"], f"final_model.pth"),
     )
+
+
+def save_model_FLOPS(model_class: Type[nn.Module], dataloader_training: DataLoader):
+
+    torch_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    train_loader = dataloader_training
+    input_enet = next(iter(train_loader))[0].to(torch_device)
+    model = model_class().to(torch_device)
+
+    flops = FlopCountAnalysis(model, input_enet)
+    return flops.total()
+    
